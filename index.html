@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>매일의 일상 원형 시계 & 달력 계획표</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- 상단 뷰 내비게이션 탭 -->
+    <nav class="view-nav">
+      <button id="nav-timeline-btn" class="nav-tab active">시계 계획표</button>
+      <button id="nav-calendar-btn" class="nav-tab">달력 보기</button>
+    </nav>
+
+    <!-- 슬라이더 컨테이너 -->
+    <div class="slider-wrapper" id="slider-wrapper">
+      
+      <!-- 화면 1: 시계 계획표 페이지 -->
+      <section class="screen-page" id="screen-timeline">
+        <header class="header-section">
+          <div class="selected-date-display" id="current-date-display">2026.09.29 (화)</div>
+          <div class="realtime-clock" id="realtime-clock">00:00:00</div>
+          <div class="active-task-banner" id="active-task-banner">
+            <span class="banner-label">NOW</span>
+            <p class="banner-text" id="active-task-text">현재 예정된 일정이 없습니다.</p>
+          </div>
+        </header>
+
+        <main class="main-circle-section">
+          <div class="circle-container">
+            <svg id="circle-timeline-svg" viewBox="0 0 300 300"></svg>
+            <div class="circle-center-info">
+              <span class="routine-title">DAILY ROUTINE</span>
+            </div>
+          </div>
+
+          <div class="timeline-list-container">
+            <ul id="task-list" class="task-list"></ul>
+          </div>
+        </main>
+
+        <footer class="bottom-action-bar">
+          <button id="open-modal-btn" class="btn-add-task">+ 일정 추가하기</button>
+        </footer>
+      </section>
+
+      <!-- 화면 2: 달력 페이지 -->
+      <section class="screen-page" id="screen-calendar">
+        <div class="calendar-header">
+          <button id="cal-prev-btn" class="cal-nav-btn">&lt;</button>
+          <h2 id="cal-month-title">2026년 9월</h2>
+          <button id="cal-next-btn" class="cal-nav-btn">&gt;</button>
+        </div>
+
+        <div class="calendar-weekdays">
+          <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+        </div>
+
+        <div class="calendar-days-grid" id="calendar-days-grid"></div>
+
+        <div class="calendar-summary-card">
+          <div class="summary-card-header">
+            <h4 id="summary-date-title">선택된 날짜 일정</h4>
+            <button id="cal-add-task-btn" class="btn-add-mini">+ 일정 추가</button>
+          </div>
+          <ul id="calendar-task-summary" class="summary-list"></ul>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- 일정 추가 모달 -->
+  <div id="task-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <header class="modal-header">
+        <h3>일정 추가</h3>
+        <button id="close-modal-btn" class="btn-close">&times;</button>
+      </header>
+
+      <form id="task-form">
+        <!-- 일정 유형 선택 -->
+        <div class="schedule-type-selector">
+          <label class="type-radio-label">
+            <input type="radio" name="scheduleType" value="special" checked>
+            <span class="radio-custom"></span>
+            <div class="radio-text">
+              <strong>특정 날짜 우선 일정 (덮어쓰기)</strong>
+              <small id="selected-date-notice">선택한 날짜에만 기본 루틴보다 우선 적용됩니다.</small>
+            </div>
+          </label>
+          <label class="type-radio-label">
+            <input type="radio" name="scheduleType" value="default">
+            <span class="radio-custom"></span>
+            <div class="radio-text">
+              <strong>매일 반복 기본 루틴</strong>
+              <small>특별 일정이 없는 날 매일 적용되는 기본 스케줄입니다.</small>
+            </div>
+          </label>
+        </div>
+
+        <!-- 날짜 지정 -->
+        <div id="target-date-group" class="form-group date-picker-group">
+          <label for="task-target-date">적용 날짜 지정</label>
+          <input type="date" id="task-target-date" required>
+        </div>
+
+        <div class="input-mode-tabs">
+          <button type="button" id="tab-circle-mode" class="tab-btn active">원형판 선택</button>
+          <button type="button" id="tab-direct-mode" class="tab-btn">직접 입력</button>
+        </div>
+
+        <!-- 옵션 1: 원형판 피커 -->
+        <div id="circle-input-section" class="input-section">
+          <div class="picker-mode-selectors">
+            <button type="button" id="btn-select-start" class="time-toggle-btn active">
+              시작 <strong id="start-time-text">22:00</strong>
+            </button>
+            <span class="time-arrow">→</span>
+            <button type="button" id="btn-select-end" class="time-toggle-btn">
+              종료 <strong id="end-time-text">06:00 (+1일)</strong>
+            </button>
+          </div>
+          <p class="picker-guide-text" id="picker-guide-text">원판에서 시작 시간을 터치하세요</p>
+          <div class="zoom-circle-container">
+            <svg id="picker-circle-svg" viewBox="0 0 300 300"></svg>
+          </div>
+        </div>
+
+        <!-- 옵션 2: 직접 입력 -->
+        <div id="direct-input-section" class="input-section hidden">
+          <div class="direct-time-group">
+            <div class="time-input-box">
+              <label for="direct-start-time">시작 시간</label>
+              <input type="time" id="direct-start-time" value="22:00">
+            </div>
+            <span class="time-arrow-direct">~</span>
+            <div class="time-input-box">
+              <label for="direct-end-time">종료 시간</label>
+              <input type="time" id="direct-end-time" value="06:00">
+            </div>
+          </div>
+          <p class="overnight-notice">* 종료 시간이 시작 시간보다 빠른 경우 자정을 넘어 익일까지 연결됩니다.</p>
+        </div>
+
+        <div class="form-group">
+          <label for="task-title">할 일 내용</label>
+          <input type="text" id="task-title" placeholder="예: 야간 작업, 특별 미팅, 운동" required>
+        </div>
+
+        <button type="submit" class="btn-submit">저장하기</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
